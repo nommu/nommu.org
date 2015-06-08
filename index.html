@@ -1,6 +1,8 @@
 <html>
 <title>NOMMU Linux</title>
 <body>
+<h1>NOMMU Linux</h1>
+
 <h1>Mailing List</h1>
 <p>Our mailing list is nommu@nommu.org, with a mailman subscription/archive
 page at <a href=http://lists.nommu.org/listinfo/nommu>mailing list</a>.</p>
@@ -69,12 +71,12 @@ memory the exec fails. The default size (8k) is basically a kernel stack.
 The standard Linux assumption of megabytes of stack is not a good fit
 for nommu systems.</p>
 
-<p><b>Memory fragmentation is a big deal></b></p>
+<p><b>Memory fragmentation is a big deal</b></p>
 
 <p>A system with an mmu can populate a virtual mapping with scattered
 physical pages, not just glossing over gaps but mapping them out of order.</p>
 
-<p>A system with an mmu needs a physical contiguous address range, which may
+<p>A nommu system needs a contiguous physical address range, which may
 be hard to come by on a system with lots of existing allocations. Even when
 there's lots of total free memory, a small chunk allocated out of the
 middle of it will halve the size of the largest allocation that can be
@@ -123,5 +125,7 @@ business.</p>
 of the memory fragmentation issue. On some nommu systems, brk() just
 returns -ENOSYS. This is mostly a concern for people implementing C
 libraries with nommu support.)</p>
+
+<h1>Some kernel patches</h1>
 </body>
 </html>
