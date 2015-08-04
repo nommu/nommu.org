@@ -4,14 +4,14 @@
 
 <p>The LX9, LX25, and LX45 FPGAs are manufactured by Xilinx, which uses a
 proprietary bitstream format produced by Xilinx's bitstream compiler.
-The free download version of this compiler is
+The freely downloadable version of this compiler is
 <a href=http://www.xilinx.com/products/design-tools/ise-design-suite/ise-webpack.html>Xilinx ISE Webpack</a> (which has both GUI and command line tools).</p>
 
 <p>In theory people are working on open source bitstream compilers.
 (<a href=http://www.isi.edu/~nsteiner/publications/soni-2013-bitstream-fccm13.pdf>This project</a>
-taking an approach similar to <a href=https://www.usenix.org/legacy/event/usenix05/tech/freenix/bellard.html>QEMU's old dyngen</a> before
+takes an approach similar to <a href=https://www.usenix.org/legacy/event/usenix05/tech/freenix/bellard.html>QEMU's old dyngen</a> before
 the <a href=http://landley.net/qemu/2008-01-15.html#Jan_17,_2008_-_[PATCH_0_5]_Enable_building_of_op.o_on_gcc4>problems with that approach</a>
-inspired <a href=http://lists.gnu.org/archive/html/qemu-devel/2008-02/msg00011.html>its replacement</a>.
+inspired <a href=http://lists.gnu.org/archive/html/qemu-devel/2008-02/msg00011.html>its replacement</a> in QEMU.
 <a href=http://www.eecs.berkeley.edu/Pubs/TechRpts/2014/EECS-2014-43.pdf>Here's
 another project</a> taking a different approach.) Unfortunately, we haven't
 found an open source bitstream compiler that's ready for real world use yet,
@@ -45,11 +45,11 @@ around it by splitting the download into 4 chunks. (This is very Xilinx.)</p>
 <p>The download is three zipfiles and a tarball. The first part
 (the tarball) does _not_ extract into a subdirectory,
 it will crap all over the current directory, so make a subdirectory and
-"tar xvf ../Xilinx*.tar" from there. (Yes, capital X, because xilinx.)</p>
+"<b>tar xvf ../Xilinx*.tar</b>" from there. (Yes, capital X, because xilinx.)</p>
 </li>
 
 <li>
-<p>4) In the subdirectory, run "<b>./xsetup</b>".</p>
+<p>4) <b>cd into the subdirectory</b> and run "<b>./xsetup</b>".</p>
 
 <p>Note that the installer expects to find the other three files (the zip.xz
 files) in the parent directory ("..") so it already knows you're going to make
@@ -57,7 +57,7 @@ a subdirectory. Xilinx just didn't package it that way.</p>
 </li>
 
 <li>
-<p>5) Click next. Click next again.</p>
+<p>5) <b>Click next. Click next again.</b></p>
 
 <p>Do NOT click "browse" when it offers you
 the option, because if you pull up that dialog the next button sometimes
@@ -68,12 +68,12 @@ place it looks for, let it find them there.</p>
 </li>
 
 <li>
-<p>5) Click both checkboxes, next, click checkbox, next.</p>
+<p>5) <b>Click both checkboxes, next, click checkbox, next</b>.</p>
 </li>
 
 <li>
-<p>6) Select ISE WebPACK, click next. Disable all the checkboxes you can,
-next.</p>
+<p>6) <b>Select ISE WebPACK, click next. Disable all the checkboxes you can,
+next.</b></p>
 
 <p>We don't need/want any of the things the checkboxes here offer: installing
 the license key here doesn't work so we're doing it as a separate step later,
@@ -86,13 +86,13 @@ of an issue.</p>
 </li>
 
 <li>
-<p>7) Select destination directory: installing in /opt/Xilix (its default)
+<p>7) <b>Select destination directory</b>: installing in /opt/Xilix (its default)
 requires root access. You can put it /home/yourusername/xilinx if you (wisely)
 don't trust this thing with root access.</p>
 </li>
 
 <li>
-<p>8) Click install.</p>
+<p>8) <b>Click install</b>.</p>
 
 <p>The install is very, very slow. It probably isn't hung, it just stays
 at 0% for a long time (even on an SSD), then goes to 2%.</p>
@@ -106,7 +106,7 @@ a web browser with the magic incatation to generate a license key.</p>
 
 <ul>
 <li>
-<p>1) "source settings64.sh" to enter Xilinx Context.</p>
+<p>1) Enter Xilinx Context.</p>
 
 <p>The Xilinx tools are brittle and crotchety, and want special environment
 variables and library paths. The script that sets up all this nonsense
@@ -116,6 +116,21 @@ your command prompt or anything to indicate you've done so (because xilinx).</p>
 <p>If you installed it in ~xilinx, you can source this script via:</p>
 
 <blockquote><p><b>source ~/xilinx/*/ISE_DS/settings64.sh</b></p></blockquote>
+
+<p>(No, you don't run it, you source it, the "." command if you're using
+a broken shell like dash. It's exporting environment
+variables into your host environment. Of course it doesn't change the
+command prompt or anything to indicate it's done so, because Xilinx.)</p>
+
+<p>Here's a wrapper script Xilinx could have used, but didn't, because Xilinx.</p>
+
+<blockquote><b><pre>
+#!/bin/bash -i
+
+source ~/xilinx/*/ISE_DS/settings64.sh
+export PS1="[Xilinx] $PS1"
+exec /bin/bash --noprofile --norc
+</pre></b></blockquote>
 </li>
 
 <li>
@@ -125,7 +140,7 @@ that's incompatible with both firefox and chromium, and in the next step
 it's going to try to launch a web browser to download a license key
 (which will fail to launch with a completely unhelpful error dialog).</p>
 
-<p>This this broken libstdc++.so.6 breaks just about everything else you try
+<p>This broken libstdc++.so.6 breaks just about everything else you try
 to run in "Xilinx context", such as the C compiler, and isn't actually used by
 the command line bitstream compiler, so let's just delete it:</p>
 
@@ -136,10 +151,12 @@ the command line bitstream compiler, so let's just delete it:</p>
 </pre>
 </blockquote>
 
-<p>(Yes there are multiple copies of the broken library, because Xilinx.)</p>
+<p>(Yes there are multiple copies of the broken library, because Xilinx.
+There are actually several more, these are just the ones xilinx context adds
+to the host library path.)</p>
 </li>
 
-<li><p>3) Set your default browser to firefox.</p></li>
+<li><p>3) <b>Set your default browser to firefox</b>.</p></li>
 
 <p>The javascript on the xilinx webpage doesn't seem to work in chromium.
 You can set it back when you're done.</p>
@@ -163,22 +180,22 @@ one on top first, so if you seem locked out grab the title bar of the
 window on top to move it out of the way, then dismiss the other one.</p>
 </li>
 
-<p>Click OK on the license error dialog to pop up license configuration
+<p><b>Click OK</b> on the license error dialog to pop up license configuration
 manager window.</p>
 
 <li><p>5) Get a license key from the website</p>
 
-<p>Select "Get Free Vivado/ISE WebPack License".</p></li>
+<p>Select "<b>Get Free Vivado/ISE WebPack License</b>".</p></li>
 
 <p>The license window may be taller than your screen, you can grab the top
 edge and shrink it, then grab the title bar and move it up until you reveal
 the next button.</p>
 
-<p>Click NEXT. The new pop-up window will remind you that you it's
+<p><b>Click NEXT</b>. The new pop-up window will remind you that you it's
 going to tie this license key to <a href=http://www.aboutlinux.info/2005/09/how-to-change-mac-address-of-your.html>the mac address</a> in your
 network card.</p>
 
-<p>Click "connect now" to launch the browser. (This will fail unless
+<p><b>Click "connect now"</b> to launch the browser. (This will fail unless
 you deleted the shared libraries above.)</p>
 
 <li><p>6) Create a new account (if you haven't already got one).</li>
@@ -213,27 +230,29 @@ gave me the product licensing page next, so I didn't have to log in a fourth
 time.</p>
 </li>
 
-<li><p>7) Select ISE WebPack License checkbox.
+<li><p>7) <b>Select ISE WebPack License checkbox</b>.
 
 <p>This part is the javascript that didn't work in Chromium (the checkbox
-stayed grayed out), but it worked in Ubuntu's Firefox.</p>
+stayed grayed out), but it worked in Ubuntu's Firefox. (Maybe chromium's
+been updated since then.)</p>
 
-<p>Click "Generate Node-Locked license". Click NEXT on the pop-up.</p>
+<p><b>Click "Generate Node-Locked license"</b>. <b>Click NEXT</b>
+on the pop-up.</p>
 
 <p>This odd "modal dialog" is just more gratuitous javascript, if the next
 button is off the bottom of your screen, scroll the enclosing web
 page down.</p>
 
-<p>Ignore the comments field, no good will come of it, just click NEXT.</p>
+<p>Ignore the comments field, no good will come of it, just <b>click NEXT</b>.</p>
 
-<p>Click NEXT again on the "review license request" dialog that serves
+<p><b>Click NEXT again</b> on the "review license request" dialog that serves
 no purpose since it has the same information as the previous dialog
 because Xilinx. (It warns you once again you can't turn off the spyware
 in the GUI, implicitly endorsing the command line tools.)</p>
 </li>
 
-<p>8) Dismiss the congratulations window (tiny little X upper right)
-and click the stealth download icon (tiny down arrow inside a circle in
+<p>8) <b>Dismiss the congratulations window</b> (tiny little X upper right)
+and <b>click the stealth download icon</b> (tiny down arrow inside a circle in
 the lower left corner of the "Comments" box) to download your license key
 file. (Or check your email, it should be attached to the message they
 just sent you.) In either case the file is called Xilinx.lic</p>
@@ -245,13 +264,13 @@ necessary.</p>
 
 <li><p>10) Feed the license file to the guid tool.</p>
 
-<p>Your "Xiinx License Configuration Manager" window (from the ise
+<p>Your <b>"Xilinx License Configuration Manager" window</b> (from the ise
 gui tool) should still be open, and should have advanced to the
-"Manage licenses" tab. Click the "Load License" button, navigate
-to ~/Downloads and select Xilinx.lic. (Or whatever location/name you
+"Manage licenses" tab. <b>Click the "Load License" button</b>, navigate
+to ~/Downloads and <b>select Xilinx.lic</b>. (Or whatever location/name you
 saved the email attachment under if you didn't download it.)</p>
 
-<p>Click "Open". You should get a popup saying license installation
+<p><b>Click "Open"</b>. You should get a popup saying license installation
 was successful.</p>
 </li>
 
