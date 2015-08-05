@@ -1,0 +1,167 @@
+<html><head><title>0pf J-core</title></head>
+<body>
+<p>This page describes the <a href=0pf.org>open processor foundation</a>'s
+<a href=http://0pf.org/j-core.html>j-core processor</a>, a clean-room open
+source processor using the
+<a href=http://www.shared-ptr.com/sh_insns.html>SuperH instruction set</a>,
+implemented in VHDL and available royalty and patent free under [LINK]a BSD
+license.</p>
+
+<p>The current j-core generation, j2, is compatible with the sh2 instruction
+set, plus two backported sh3 barrel shift instructions (SHAD and SHLD)
+and a new cmpxchg (mnemonic CAS Rm, Rn, @R0 opcode 0011-nnn-mmm-0001)
+based on the IBM 360 instruction. Because it uses an existing instruction set,
+Linux and gcc and such already support this processor.</p>
+
+<p>The developers gave a <a href=http://events.linuxfoundation.org/sites/events/files/slides/Turtles%20all%20the%20way.pdf>presentation</a> about it which was
+<a href=https://lwn.net/Articles/647636/>covered by lwn</a>.</p>
+
+<pre>
+0pf.org/j-core.html says cpu core is ~45k gates, but lx9 has 9000?
+
+Todo: quickstart on QEMU
+</pre>
+
+<h1>Quick start on hardware</h1>
+
+<p>The theory is you flash a "bitstream" file into an FPGA board's onboard
+SPI flash, which configures the FPGA to act like a j2 processor. This
+bitstream includes a small bootloader that attempts to load a file called
+"vmlinux" from an sd card, containing a linux kernel with a filesystem
+in initramfs configured to boot with a serial console.</p>
+
+<p>To do this, you need an FPGA board and sdcard, a bitstream, a vmlinux
+file with bundled initramfs, a computer with a USB connection (to write
+the SPI flash and connect to the serial console), and an sdcard writer.</p>
+
+<h2>1) Get some hardware</h2>
+
+<p><b>Numato</b>:
+The cheapest usable FPGA development board ($50 US) the j2 build system
+currently targets is the
+<a href=http://numato.com/fpga-boards/xilinx/spartan6/mimas-v2-spartan-6-fpga-development-board-with-ddr-sdram.html>Numato Mimas v2</a>
+(also available <a href=http://www.amazon.com/Numato-Mimas-Spartan-Development-Board/dp/B00RL7FCQW>on amazon</a>).
+It contains a Xlinux "Spartan 6" lx9 FPGA, 64 megs of SDRAM, USB2, serial port,
+and an sd card slot. Numato <a href=http://svn.numato.cc/dl.php?repname=numatocc&path=%2FFPGA%2FMimasV2Spartan6Dev%2Ftrunk%2Ftools%2Fconfiguration%2Fpython%2FMimasV2Config.py>provides a Python 3 tool to flash bitstreams
+onto the board</a>. [TODO port this to python 2]</p>
+
+<p>You will probably also need a
+<a href=http://www.amazon.com/s/?keywords=usb+sd+card+adapter>USB sdcard
+adapter</a>, and may need a blank card. The Numato has a builtin USB serial
+converer, so its "serial port" is already USB.</p>
+
+<p><b>Avnet</b>: Early j2 development was done on
+<a href=http://www.em.avnet.com/s6microboard>Avnet Spartan-6 LX9 Microboard</a>
+which which is more expensive (about $90) and doesn't have a builtin sd card
+(although you can
+<a href=http://numato.com/micro-sd-expansion-module.html>add one</a>).
+That board is physically smaller and has builtin ethernet, so it's
+potentially interesting as an "Internet of Things" platform, but the
+Numato is a better starting board.
+<a href=https://tingcao.wordpress.com/category/lx9-microboard/>This blog</a>
+has more information about using the Avnet board, including flashing
+a bitstream onto it.</p>
+
+<p><b>SEI<b>: The 9 in lx9 means it has about 9000 programmable gates.
+A minimally configured j2 processor (with no icache or dcache) takes up
+about 6000 of those, and that's before you add SOC peripherals like MMC
+or ethernet. At some point in the future,
+<a href=http://se-instruments.com>SE Instruments</a> (which sponsored the
+initial j-core development) intends to run a kickstarter to produce
+a Raspberry-Pi form factor FPGA board based on the Xilinx lx45 (with about
+7 times as many gates as an lx9) so people can play with SMP and adding
+DSPs and so on. They'll announce it on the 0pf mailing
+list when they get around to that.</p>
+
+<p>[TODO page on porting jcore build to new FPGA boards.]</p>
+
+<p>The rest of this page describes using the Numato board.</p>
+
+<h2>2) Get/Install a bitstram.</h2>
+
+<p>The point of open hardware is that you can [LINK]build a bitstream
+from the VHDL source code, but for your initial smoketesting let's
+grab a known working binary and install that first.</p>
+
+<p>The current release version is [LINK]</p>
+
+<p>3) Hook up a serial console</p>
+
+<p>4) Install vmlinux on the sdcard</p>
+
+<p>Again, you can build linux source but for our first go at it, grab
+the vmlinux image from [LINK]the 0pf website[/LINK]</p>
+
+<pre>
+Instruction set page:
+  All sh2 instructions
+  Backported sh3 instructions:
+    2 barrel shifter instructions, SHAD and SHLD
+  Compare and swap:
+    0011-nnn-mmm-0001 CAS Rn, Rm, @R0
+
+
+Getting started
+  1) Runs under qemu-system-sh4, but that implements more hardware and
+     instructions than the j-core
+  2) Order a FPGA board
+
+hardware developers:
+  link to git, mailing list
+  license page (0bsd puppy eyes?)
+  build system design page
+  installing and running the build system
+    installing xilinx bitstream compiler
+    installing sh2 elf compiler
+
+software developers:
+  installing sh2 linux compiler
+  kernel patch, config
+  nommu root filesystem
+
+- hardware is open source [license PAGE]
+  - vhdl files in a build system [PAGE]
+  - Download bitstream for Numato Mimas v2 [LINK] or run the build [LINK]
+
+- The build and produce three types of output: bitstream files to load into
+  an FPGA, C files to build a cycle-accurate emulator, or ASIC mask files
+  to send to a fab to produce silicon chips.
+
+Most hardware developent is done in FPGAs, programmable chips that can
+
+
+soc_gen (cloture) makes:
+  microboard.pins
+  base.ucf
+  design.edn
+  MimasV2.ucf
+  pad_ring.vhd
+  soc.vhd
+
+where is diagram describing the openoffice document input and which bits
+are implemented in cloture and all that?
+
+<p>This is an open source hardware processor compatible with the sh2 (SuperH
+generation 2) instruction set.</p>
+
+<p>The current iteration, j2, uses the sh2 (SuperH generation 2) instruction
+set, with some optional extensions (a bit shift instruction backported
+from sh3, an improved CMPXCHG instruction for SMP support modeled after
+the IBM 360, etc). If these extensions are ignored the processor is fully
+sh2 compatible.</p>
+
+<p>The processor is implemented as a set of VHDL files in a build system
+that takes input from an open office spreadsheet and produces
+
+ features backported from sh3 (such as an improved
+bit shift instruction). The j4 will be sh4 compatible sometime after
+the relevant patents expire in 2016.</p>
+
+ It's a nommu system with a 16 bit instruction set
+
+0pf.org/j-core.html says cpu core is ~45k gates, but lx9 has 9000?
+
+Todo: quickstart on QEMU
+</pre>
+
+
