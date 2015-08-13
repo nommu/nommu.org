@@ -16,15 +16,14 @@ build, install, and boot Linux to a shell prompt with serial console.</p>
 <p>The steps are:</p>
 
 <ul>
-<li>Order a Numato Mimas v2 FPGA board.</li>
+<li>Get a Numato Mimas v2 FPGA board.</li>
 <li>Download a bitstream (or build the processor yourself from source).</li>
-<li>Flash bitstream into the board.</li>
+<li>Flash bitstream into the board (via USB).</li>
 <li>Download vmlinux (or build Linux yourself from source) and copy it to
 the sdcard.</li>
-<li>Boot board connected to a serial terminal</li>
+<li>Boot board connected to a serial terminal (via same USB) to a Linux
+shell prompt.</li>
 </ul>
-
-<p>That should produce a Linux shell prompt running jcore.</p>
 
 <h2>What is this processor?</h2>
 
@@ -40,8 +39,10 @@ processor.</p>
 <a href=https://lwn.net/Articles/647636/>covered by Linux Weekly News</a>.
 Open source hardware can be manufactured cheaply (about 3 cents per
 processor) audited for NSA backdoors or
-<a href=http://hothardware.com/news/researchers-discover-rootkit-exploit-in-intel-processors-that-dates-back-to-1997>exploitable firmware bugs</a> in place
-for a decade, and built without hidden extra processors in things like
+<a href=http://www.theregister.co.uk/2015/08/12/lenovo_firmware_nasty/>vendor
+backdoors</a> or decade-old
+<a href=http://hothardware.com/news/researchers-discover-rootkit-exploit-in-intel-processors-that-dates-back-to-1997>exploitable firmware bugs</a>,
+and built without hidden extra processors in things like
 <a href=http://s3.eurecom.fr/~zaddach/docs/Recon14_HDD.pdf>storage devices</a>
 and <a href=http://arstechnica.com/security/2014/07/this-thumbdrive-hacks-computers-badusb-exploit-makes-devices-turn-evil/>USB controllers</a>
 easily repurposed into spyware.</p>
@@ -60,10 +61,14 @@ bitstream includes a small bootloader that attempts to load a file called
 in initramfs configured to boot with a serial console.</p>
 
 <p>To do this, you need an FPGA board and sdcard, a bitstream, a vmlinux
-file with bundled initramfs, a computer with a USB connection (to write
-the SPI flash and connect to the serial console), and an sdcard writer.</p>
+file with bundled initramfs, an sdcard writer, and a computer with a
+USB connection (to write the SPI flash and connect to the serial console,
+we used a laptop running Ubuntu 14.04).</p>
 
 <h2>1) Get some hardware</h2>
+
+<p>You probably want to start with a Numato board, but it's not the only
+option:</p>
 
 <ul>
 <li><p><b>Numato</b>:
@@ -71,19 +76,16 @@ The cheapest usable FPGA development board ($50 US) the j2 build system
 currently targets is the
 <a href=http://numato.com/fpga-boards/xilinx/spartan6/mimas-v2-spartan-6-fpga-development-board-with-ddr-sdram.html>Numato Mimas v2</a>
 (also available <a href=http://www.amazon.com/Numato-Mimas-Spartan-Development-Board/dp/B00RL7FCQW>on amazon</a>).
-It contains a Xlinux "Spartan 6" lx9 FPGA, 64 megs of SDRAM, USB2 (using
-a mini-B connector and yes this can power the board), serial port,
-and an sd card slot.</p>
+It contains a Xlinux "Spartan 6" lx9 FPGA, 64 megs of SDRAM, USB2 mini-B,
+and a micro-sd card slot.</p>
 
 <p>You will probably also need a USB mini-B cable (the kind playstation
 controllers use, not the kind android phones use), a
 <a href=http://www.amazon.com/s/?keywords=usb+sd+card+adapter>USB sdcard
-adapter</a>, and a blank card. The Numato has a builtin USB serial
+adapter</a>, and a blank micro-sd card. The Numato has a builtin USB serial
 converer, so its "serial port" is already USB. (This USB port can also power
-the board.)</p>
-
-<p>Numato provides a GPL tool written in python 3 (described below) to flash
-bitstreams onto the board.</p>
+the board, and Numato provides a python script that writes
+bitstreams to the onboard SPI flash through it.)</p>
 </li>
 
 <li>
@@ -98,8 +100,8 @@ Numato is a better starting board.</p>
 
 <p><a href=https://tingcao.wordpress.com/category/lx9-microboard/>This blog</a>
 has more information about using the Avnet board, including flashing
-a bitstream onto it. (We used a digilent tool to flash it, and had to modify its
-config files by hand to teach it about this board.)</p>
+a bitstream onto it. (We used a digilent tool to flash it, and had to
+modify its config files by hand to teach it about this board.)</p>
 </li>
 
 <li>
@@ -122,13 +124,11 @@ list when they get around to that.</p>
 
 <h2>2) Get/install a bitstram.</h2>
 
-<p>The point of open hardware is that you can [LINK]build a bitstream
-from the VHDL source code, but for your initial smoketesting let's
-grab a known working binary and install that first.</p>
+<p>The point of open hardware is that you can build a bitstream
+from the VHDL source code, but for your initial smoketesting you probably
+want to [TODO LINK]grab a known working binary and install that first.</p>
 
-<p>The current binary release version is [LINK]</p>
-
-<p>To build your own bitstream:</p>
+<p>To build your own bitstream from VHDL source:</p>
 
 <ul>
 <li><a href=bitcomp.html>Install the Xilinx
