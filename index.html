@@ -47,18 +47,28 @@ binaries.</b></p>
 <p>Every process in a nommu system uses/sees the same addresses. Most ELF
 programs specify what address to map each segment at, and the code/data in
 those segments uses fixed addresses, (plus other details like the program's
-entry point).</p>
-
-<p>This doesn't work on nommu becuase you don't know what other programs are
+entry point).
+This doesn't work on nommu because you don't know what other programs are
 running on the system, and if you want to run two instances of the same
 program each needs its own bss and data segments.</p>
 
 <p>So we link programs differently, turning the .o files into either a
-a "binflt" binary (which is more efficient and can run directly out of ROM),
+a <a href=http://retired.beyondlogic.org/uClinux/bflt.htm>binflt</a>
+binary (a file format that's sort of a relocatable version of the old
+a.out binaries, built using the
+<a href=https://github.com/gregungerer/elf2flt>elf2flt</a> tool),
 or an FDPIC binary (a modified ELF variant where everything is relocatable,
 basically static PIE with extensions to share text and rodata segments
-between processes). This requires a toolchain that knows how to produce
-these output formats.</p>
+between processes). Either way requires a toolchain that knows how to produce
+these output formats, and a kernel with the relevant binary format loader
+(CONFIG_BINFMT_FLAT or CONFIG_BINFMT_ELF_FDPIC) enabled.</p>
+
+<p>For example, for the sh2 target the
+<a href=http://landley.net/aboriginal/about.html>Aboriginal Linux</a>
+project builds a binflt cross-compiler-sh2eb using uClibc, and the
+<a href=http://musl-libc.org>musl-libc</a> project has
+<a href=https://github.com/richfelker/musl-cross-make>an fdpic toolchain</a>
+build using musl.</p>
 
 <p><b>Fixed stack size specified at compile time</b></p>
 
