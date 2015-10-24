@@ -1,0 +1,46 @@
+/* COLORS -----------
+
+    accent:     #7b5;
+    secondary:  #58b;
+    text:       #222;
+    outline:    #ddd;
+*/
+
+body {
+  line-height: 1.5;
+  font-family: 'Open Sans', 'Source Sans Pro', 'Helvetica', 'Arial', sans-serif;
+  max-width: 46em;
+  margin: 1em auto;
+  color: #222;
+  padding: 2em;
+}
+
+h1, h2 {
+  color: #7b5 ;
+}
+
+h1 {
+  font-size: 2.5em;
+}
+
+h2 {
+  font-size: 1.85em;
+  color: #58b;
+}
+
+a {
+  color: #7b5;
+  border-bottom: 1px solid #7b5;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #58b;
+  border-bottom: 1px solid #58b;
+}
+
+.callout {
+  border: 2px solid #ddd;
+  padding: .5em 3em;
+  font-size: 1.1em;
+}

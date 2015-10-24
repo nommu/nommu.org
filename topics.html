@@ -1,34 +1,37 @@
 <html>
-<title>Linux for Microcontrollers</title>
+<head>
+  <title>Linux for Microcontrollers</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
 <body>
-<h2>Stuff we need to cover</h2>
-<pre>
-- Why nommu?
-  - very hard realtime (nanoseconds)
-  - very low memory (XIP sram)
-    - page tables take up memory, 4k page size
-  - very low power
-    - low transistor count
-  - very cheap
-  - because it's there
-    - if you have one of these chips it's nice to have the option of running
-      linux on it rather than being restricted to a less capable embedded OS
-- Architectures
-  - sh2, coldfire, blackfine, cortex-m, armv7r
-- Distros
-  - uclinux (RIP)
-    - was based on uclibc and busybox
-  - buildroot
-  - openembedded
-  - rolling your own
-    - packages
-      - linux
-      - musl
-      - toybox
-- Programming
-  - executable format (binflat, fdpic)
-  - fixed stack
-  - fork vs vfork
-</pre>
+  <h2>Stuff we need to cover</h2>
+  <pre>
+  - Why nommu?
+    - very hard realtime (nanoseconds)
+    - very low memory (XIP sram)
+      - page tables take up memory, 4k page size
+    - very low power
+      - low transistor count
+    - very cheap
+    - because it's there
+      - if you have one of these chips it's nice to have the option of running
+        linux on it rather than being restricted to a less capable embedded OS
+  - Architectures
+    - sh2, coldfire, blackfine, cortex-m, armv7r
+  - Distros
+    - uclinux (RIP)
+      - was based on uclibc and busybox
+    - buildroot
+    - openembedded
+    - rolling your own
+      - packages
+        - linux
+        - musl
+        - toybox
+  - Programming
+    - executable format (binflat, fdpic)
+    - fixed stack
+    - fork vs vfork
+  </pre>
 </body>
 </html>
