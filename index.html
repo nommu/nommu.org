@@ -1,139 +1,146 @@
 <html>
-<title>NOMMU Linux</title>
+<head>
+  <title>NOMMU Linux</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
 <body>
-<center><h1>NOMMU Linux</h1></center>
+  <center>
+    <h1>NOMMU Linux</h1>
+  </center>
 
-<h1>Mailing List</h1>
-<p>Our mailing list is nommu@nommu.org, with a mailman subscription/archive
-page at <a href=http://lists.nommu.org/listinfo/nommu>mailing list</a>.</p>
+  <div class="callout">
+    <h2>Mailing List</h2>
+    <p>Our mailing list is nommu@nommu.org, with a mailman subscription/archive
+    page at <a href=http://lists.nommu.org/listinfo/nommu>mailing list</a>.</p>
+  </div>
 
-<h1>Programming for nommu Linux</h1>
+  <h2>Programming for nommu Linux</h2>
 
-<p>A nommu system does not use a
-<a href=memory-faq.txt>memory management unit</a>, which is the part of
-the processor that translates virtual addresses into physical addresses.
-In a nommu system, all addresses are physical addresses, which means:</p>
+  <p>A nommu system does not use a
+  <a href=memory-faq.txt>memory management unit</a>, which is the part of
+  the processor that translates virtual addresses into physical addresses.
+  In a nommu system, all addresses are physical addresses, which means:</p>
 
-<p><b>No demand faulting: memory is allocated directly by malloc(), which
-returns NULL a lot more often.</b></p>
+  <p><b>No demand faulting: memory is allocated directly by malloc(), which
+  returns NULL a lot more often.</b></p>
 
-<p>In a system with an mmu, malloc() doesn't actually allocate memory. The
-new virtual address range starts with a redundant copy-on-write mapping
-of the "zero page" (so all reads return zero but are actually reading
-from the same physical page over and over), and then writes are intercepted
-and new memory allocated to hold them as needed by the page fault handler.</p>
+  <p>In a system with an mmu, malloc() doesn't actually allocate memory. The
+  new virtual address range starts with a redundant copy-on-write mapping
+  of the "zero page" (so all reads return zero but are actually reading
+  from the same physical page over and over), and then writes are intercepted
+  and new memory allocated to hold them as needed by the page fault handler.</p>
 
-<p>On an mmu system, malloc() only returns zero when your process has run
-out of virtual address space (which only ever really happens on 32 bit systems,
-and even then you've several gigabytes per process). Actual memory exhaustion
-is handled by the OOM killer. Because of this, mmu Linux programmers often
-get out of the habit checking for NULL because it almost never happens.
-(See the <a href=memory-faq.txt>Memory FAQ</a>
-for details on how this works in the mmu case.)</p>
+  <p>On an mmu system, malloc() only returns zero when your process has run
+  out of virtual address space (which only ever really happens on 32 bit systems,
+  and even then you've several gigabytes per process). Actual memory exhaustion
+  is handled by the OOM killer. Because of this, mmu Linux programmers often
+  get out of the habit checking for NULL because it almost never happens.
+  (See the <a href=memory-faq.txt>Memory FAQ</a>
+  for details on how this works in the mmu case.)</p>
 
-<p>A nommu system hasn't got virtual address, any "mappings" are just
-the kernel keeping track of what physical memory is allocated and what's free.
-Instead allocations on nommu must locate a contiguous
-region of physical memory, memset it to zero, and return a pointer to the
-start of it. This means malloc() will return NULL if it can't find a
-sufficiently large contiguous chunk of memory.</p>
+  <p>A nommu system hasn't got virtual address, any "mappings" are just
+  the kernel keeping track of what physical memory is allocated and what's free.
+  Instead allocations on nommu must locate a contiguous
+  region of physical memory, memset it to zero, and return a pointer to the
+  start of it. This means malloc() will return NULL if it can't find a
+  sufficiently large contiguous chunk of memory.</p>
 
-<p>This means that large speculative mappings, such as megabytes of stack
-"just in case", are a bad idea on nommu.</p>
+  <p>This means that large speculative mappings, such as megabytes of stack
+  "just in case", are a bad idea on nommu.</p>
 
-<p><b>All program text must be relocatable: so we can't use standard ELF
-binaries.</b></p>
+  <p><b>All program text must be relocatable: so we can't use standard ELF
+  binaries.</b></p>
 
-<p>Every process in a nommu system uses/sees the same addresses. Most ELF
-programs specify what address to map each segment at, and the code/data in
-those segments uses fixed addresses, (plus other details like the program's
-entry point).
-This doesn't work on nommu because you don't know what other programs are
-running on the system, and if you want to run two instances of the same
-program each needs its own bss and data segments.</p>
+  <p>Every process in a nommu system uses/sees the same addresses. Most ELF
+  programs specify what address to map each segment at, and the code/data in
+  those segments uses fixed addresses, (plus other details like the program's
+  entry point).
+  This doesn't work on nommu because you don't know what other programs are
+  running on the system, and if you want to run two instances of the same
+  program each needs its own bss and data segments.</p>
 
-<p>So we link programs differently, turning the .o files into either a
-a <a href=http://retired.beyondlogic.org/uClinux/bflt.htm>binflt</a>
-binary (a file format that's sort of a relocatable version of the old
-a.out binaries, built using the
-<a href=https://github.com/gregungerer/elf2flt>elf2flt</a> tool),
-or an FDPIC binary (a modified ELF variant where everything is relocatable,
-basically static PIE with extensions to share text and rodata segments
-between processes). Either way requires a toolchain that knows how to produce
-these output formats, and a kernel with the relevant binary format loader
-(CONFIG_BINFMT_FLAT or CONFIG_BINFMT_ELF_FDPIC) enabled.</p>
+  <p>So we link programs differently, turning the .o files into either a
+  a <a href=http://retired.beyondlogic.org/uClinux/bflt.htm>binflt</a>
+  binary (a file format that's sort of a relocatable version of the old
+  a.out binaries, built using the
+  <a href=https://github.com/gregungerer/elf2flt>elf2flt</a> tool),
+  or an FDPIC binary (a modified ELF variant where everything is relocatable,
+  basically static PIE with extensions to share text and rodata segments
+  between processes). Either way requires a toolchain that knows how to produce
+  these output formats, and a kernel with the relevant binary format loader
+  (CONFIG_BINFMT_FLAT or CONFIG_BINFMT_ELF_FDPIC) enabled.</p>
 
-<p>For example, for the sh2 target the
-<a href=http://landley.net/aboriginal/about.html>Aboriginal Linux</a>
-project builds a binflt cross-compiler-sh2eb using uClibc, and the
-<a href=http://musl-libc.org>musl-libc</a> project has
-<a href=https://github.com/richfelker/musl-cross-make>an fdpic toolchain</a>
-build using musl.</p>
+  <p>For example, for the sh2 target the
+  <a href=http://landley.net/aboriginal/about.html>Aboriginal Linux</a>
+  project builds a binflt cross-compiler-sh2eb using uClibc, and the
+  <a href=http://musl-libc.org>musl-libc</a> project has
+  <a href=https://github.com/richfelker/musl-cross-make>an fdpic toolchain</a>
+  build using musl.</p>
 
-<p><b>Fixed stack size specified at compile time</b></p>
+  <p><b>Fixed stack size specified at compile time</b></p>
 
-<p>Both nommu output formats require you to specify an explicit stack size at
-compile time, because a nommu system can't automatically grow the stack
-(no "guard page" faults). These stacks should be as small as you can get
-away with because the entire size is allocated at program launch (requiring
-a contiguous unshareable allocation), and if the system can't get that
-memory the exec fails. The default size (8k) is basically a kernel stack.
-The standard Linux assumption of megabytes of stack is not a good fit
-for nommu systems.</p>
+  <p>Both nommu output formats require you to specify an explicit stack size at
+  compile time, because a nommu system can't automatically grow the stack
+  (no "guard page" faults). These stacks should be as small as you can get
+  away with because the entire size is allocated at program launch (requiring
+  a contiguous unshareable allocation), and if the system can't get that
+  memory the exec fails. The default size (8k) is basically a kernel stack.
+  The standard Linux assumption of megabytes of stack is not a good fit
+  for nommu systems.</p>
 
-<p><b>Memory fragmentation is a big deal</b></p>
+  <p><b>Memory fragmentation is a big deal</b></p>
 
-<p>A system with an mmu can populate a virtual mapping with scattered
-physical pages, not just glossing over gaps but mapping them out of order.</p>
+  <p>A system with an mmu can populate a virtual mapping with scattered
+  physical pages, not just glossing over gaps but mapping them out of order.</p>
 
-<p>A nommu system needs a contiguous physical address range, which may
-be hard to come by on a system with lots of existing allocations. Even when
-there's lots of total free memory, a small chunk allocated out of the
-middle of it will halve the size of the largest allocation that can be
-satisfied. After a while, the largest available chunk of memory tends
-to be far smaller than the total amount of free memory.</p>
+  <p>A nommu system needs a contiguous physical address range, which may
+  be hard to come by on a system with lots of existing allocations. Even when
+  there's lots of total free memory, a small chunk allocated out of the
+  middle of it will halve the size of the largest allocation that can be
+  satisfied. After a while, the largest available chunk of memory tends
+  to be far smaller than the total amount of free memory.</p>
 
-<p>The system needs contiguous allocations for program code, for
-for process stacks and environment space, and to satisfy malloc(). The
-smaller these allocations can be, the more likely they are to fit into
-available chunks space on a fragmented system. (Conversely, the more
-small long-lived allocations you make, the more fragmented memory gets.)</p>
+  <p>The system needs contiguous allocations for program code, for
+  for process stacks and environment space, and to satisfy malloc(). The
+  smaller these allocations can be, the more likely they are to fit into
+  available chunks space on a fragmented system. (Conversely, the more
+  small long-lived allocations you make, the more fragmented memory gets.)</p>
 
-<p>Because of this, your libc probably won't put large mappings in the heap
-(which is itself a large contiguous mapping), but may instead ask the kernel
-to mmap() larger allocations so they can fit into available space. (The
-tradeoff is making such allocations larger by rounding up to page size.)</p>
+  <p>Because of this, your libc probably won't put large mappings in the heap
+  (which is itself a large contiguous mapping), but may instead ask the kernel
+  to mmap() larger allocations so they can fit into available space. (The
+  tradeoff is making such allocations larger by rounding up to page size.)</p>
 
-<p><b>No fork(): vfork() instead</b></p>
+  <p><b>No fork(): vfork() instead</b></p>
 
-<p>Using fork would be expensive even if it wasn't almost impossible: you have
-to copy all the program's writeable data to fresh allocations, and most
-likely immediately discard them again by performing an exec().</p>
+  <p>Using fork would be expensive even if it wasn't almost impossible: you have
+  to copy all the program's writeable data to fresh allocations, and most
+  likely immediately discard them again by performing an exec().</p>
 
-<p>The "almost impossible" part is because any pointers in your new copy
-of the heap/stack would point to memory in the OLD heap/stack, because every
-process sees the same addresses. Going through the heap and stack to relocate
-all these pointers turns out to be really hard (see "garbage collection in
-C").</p>
+  <p>The "almost impossible" part is because any pointers in your new copy
+  of the heap/stack would point to memory in the OLD heap/stack, because every
+  process sees the same addresses. Going through the heap and stack to relocate
+  all these pointers turns out to be really hard (see "garbage collection in
+  C").</p>
 
-<p>Instead we use vfork(), which halts the parent process when it creates
-a new child process so the child can use the parent's memory (definitely
-the heap, it might or might not get a new stack). When the child calls
-exec() or _exit(), the parent process resumes.</p>
+  <p>Instead we use vfork(), which halts the parent process when it creates
+  a new child process so the child can use the parent's memory (definitely
+  the heap, it might or might not get a new stack). When the child calls
+  exec() or _exit(), the parent process resumes.</p>
 
-<p>The vfork()ed child has to be careful not to corrupt the
-parent's heap (and shouldn't return from the function that called vfork()
-in case it's using the same stack).</p>
+  <p>The vfork()ed child has to be careful not to corrupt the
+  parent's heap (and shouldn't return from the function that called vfork()
+  in case it's using the same stack).</p>
 
-<p>If the child can't exec() a new process, it should call _exit() instead
-of exit() becaue the first is a system call and the latter does various
-cleanup work like stdio flushing and running atexit() calls and destructors
-that are properties of the parent process, and none of the child's
-business.</p>
+  <p>If the child can't exec() a new process, it should call _exit() instead
+  of exit() becaue the first is a system call and the latter does various
+  cleanup work like stdio flushing and running atexit() calls and destructors
+  that are properties of the parent process, and none of the child's
+  business.</p>
 
-<p>(Similarly, the brk() system call is a lot less useful because
-of the memory fragmentation issue. On some nommu systems, brk() just
-returns -ENOSYS. This is mostly a concern for people implementing C
-libraries with nommu support.)</p>
-</body>
+  <p>(Similarly, the brk() system call is a lot less useful because
+  of the memory fragmentation issue. On some nommu systems, brk() just
+  returns -ENOSYS. This is mostly a concern for people implementing C
+  libraries with nommu support.)</p>
+  </body>
 </html>
