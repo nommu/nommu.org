@@ -100,7 +100,7 @@
   satisfied. After a while, the largest available chunk of memory tends
   to be far smaller than the total amount of free memory.</p>
 
-  <p>The system needs contiguous allocations for program code, for
+  <p>The system needs contiguous allocations for program code,
   for process stacks and environment space, and to satisfy malloc(). The
   smaller these allocations can be, the more likely they are to fit into
   available chunks space on a fragmented system. (Conversely, the more
@@ -133,7 +133,7 @@
   in case it's using the same stack).</p>
 
   <p>If the child can't exec() a new process, it should call _exit() instead
-  of exit() becaue the first is a system call and the latter does various
+  of exit() because the first is a system call and the latter does various
   cleanup work like stdio flushing and running atexit() calls and destructors
   that are properties of the parent process, and none of the child's
   business.</p>
